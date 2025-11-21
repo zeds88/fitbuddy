@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FitBuddy - The gamified social fitness platform. Join live workout streams, compete with friends, and crush your fitness goals together.">
+    <meta name="keywords" content="fitness, workout, social fitness, gamification, live streams, fitness tracker">
+    <meta property="og:title" content="FitBuddy - Social Fitness Gaming">
+    <meta property="og:description" content="Join live workout streams, compete on leaderboards, and achieve your fitness goals with friends.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fitbud.com">
+    <title>FitBuddy - Social Fitness Gaming</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-orange: #f97316;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--bg-tertiary);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .workspace-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .workspace-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .workspace-title {
+            font-weight: bold;
+            font-size: 1.125rem;
+        }
+        
+        .workspace-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .stats-card {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%);
+            margin: 0.75rem;
+            border-radius: 8px;
+        }
+        
+        .streak-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .fire-emoji {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 8px #ff6b35);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .channels {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 0.75rem;
+        }
+        
+        .channel-section {
+            margin-bottom: 1rem;
+        }
+        
+        .channel-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            padding: 0 0.5rem;
+        }
+        
+        .channel-btn {
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .channel-btn:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .channel-btn.active {
+            background: rgba(139, 92, 246, 0.2);
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .badge {
+            margin-left: auto;
+            background: var(--accent-green);
+            color: white;
+            padding: 0.125rem 0.375rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .online { background: var(--accent-green); }
+        .away { background: var(--accent-yellow); }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .view-container {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .view-container.active {
+            display: flex;
+        }
+        
+        .content-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--bg-tertiary);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-title {
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        
+        .header-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-purple);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        /* Stream View */
+        .stream-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .stream-main {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .stream-video {
+            border: 3px solid transparent;
+            background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                        linear-gradient(90deg, #667eea, #764ba2, #667eea) border-box;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            animation: gradient-rotate 3s linear infinite;
+        }
+        
+        .video-placeholder {
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .video-content {
+            text-align: center;
+            z-index: 1;
+        }
+        
+        .live-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--accent-red);
+            padding: 0.5rem 0.75rem;
+            border-radius: 999px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stats-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        .workout-plan {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .workout-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            border-left: 4px solid transparent;
+        }
+        
+        .workout-item.completed {
+            background: rgba(16, 185, 129, 0.2);
+            border-left-color: var(--accent-green);
+        }
+        
+        .workout-item.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-left-color: var(--accent-purple);
+        }
+        
+        .workout-item.pending {
+            background: var(--bg-tertiary);
+            border-left-color: #4b5563;
+        }
+        
+        /* Chat */
+        .stream-chat {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--bg-tertiary);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .chat-message {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .chat-message:hover {
+            background: rgba(139, 92, 246, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .chat-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-username {
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        
+        .chat-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-left: 0.5rem;
+        }
+        
+        .chat-text {
+            font-size: 0.875rem;
+            margin-top: 0.125rem;
+        }
+        
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+        
+        .chat-input {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            color: white;
+            font-size: 0.875rem;
+        }
+        
+        .chat-input:focus {
+            outline: 2px solid var(--accent-purple);
+        }
+        
+        /* Feed View */
+        .feed-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .feed-main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .post {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .post-header {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .post-author {
+            flex: 1;
+        }
+        
+        .author-name {
+            font-weight: bold;
+        }
+        
+        .author-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .pro-badge {
+            display: inline-block;
+            background: var(--accent-yellow);
+            color: black;
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+        
+        .post-content {
+            margin-bottom: 0.75rem;
+        }
+        
+        .workout-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .workout-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .xp-badge {
+            background: var(--accent-green);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .workout-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        
+        .reactions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .reaction-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .reaction-btn:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .achievement-card {
+            background: linear-gradient(135deg, #ca8a04, #ea580c);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 0.75rem;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .achievement-title {
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Sidebar Right */
+        .sidebar-right {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--bg-tertiary);
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .leaderboard {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rank-1 { background: rgba(234, 179, 8, 0.2); }
+        .rank-2 { background: rgba(75, 85, 99, 0.5); }
+        .rank-3 { background: rgba(234, 88, 12, 0.3); }
+        .rank-me { background: rgba(139, 92, 246, 0.2); }
+        
+        /* Workout Generator */
+        .workout-gen {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .workout-gen-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .workout-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .workout-option {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 12px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .workout-option:hover {
+            transform: scale(1.05);
+        }
+        
+        .option-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .option-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .option-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        
+        .generated-workout {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: none;
+        }
+        
+        .generated-workout.visible {
+            display: block;
+        }
+        
+        .exercise-list {
+            margin: 1rem 0;
+        }
+        
+        .exercise-item {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .exercise-icon {
+            font-size: 1.5rem;
+        }
+        
+        .exercise-info {
+            flex: 1;
+        }
+        
+        .exercise-name {
+            font-weight: bold;
+        }
+        
+        .exercise-details {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 5px #10b981;
+            }
+            50% {
+                box-shadow: 0 0 20px #10b981, 0 0 30px #10b981;
+            }
+        }
+        
+        @keyframes gradient-rotate {
+            0% {
+                filter: hue-rotate(0deg);
+            }
+            100% {
+                filter: hue-rotate(360deg);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+            .workspace-header span,
+            .channel-header,
+            .stats-card {
+                display: none;
+            }
+            .sidebar-right {
+                display: none;
+            }
+            .stream-chat {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="workspace-header">
+                <div class="workspace-icon">💪</div>
+                <div>
+                    <div class="workspace-title">FitBuddy</div>
+                    <div class="workspace-subtitle">Level 23 Warrior</div>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="streak-row">
+                    <span class="fire-emoji">🔥</span>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #9ca3af;">Streak</div>
+                        <div style="font-size: 1.25rem; font-weight: bold;">47 days</div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div style="color: #9ca3af;">XP Today</div>
+                        <div style="font-weight: bold; color: #10b981;">+850</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="color: #9ca3af;">Rank</div>
+                        <div style="font-weight: bold; color: #f59e0b;">#42</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="channels">
+                <div class="channel-section">
+                    <div class="channel-header">LIVE STREAMS 🔴</div>
+                    <button class="channel-btn" onclick="switchView('stream')">
+                        <span class="live-dot"></span>
+                        <span>💪 Beast Mode Squad</span>
+                        <span style="margin-left: auto; font-size: 0.75rem; color: #9ca3af;">247</span>
+                    </button>
+                    <button class="channel-btn" onclick="switchView('stream')">
+                        <span class="live-dot"></span>
+                        <span>🏃 Marathon Training</span>
+                        <span style="margin-left: auto; font-size: 0.75rem; color: #9ca3af;">89</span>
+                    </button>
+                </div>
+                
+                <div class="channel-section">
+                    <div class="channel-header">WORKOUT SQUADS</div>
+                    <button class="channel-btn active" onclick="switchView('feed')">
+                        <span>#</span>
+                        <span>morning-grind</span>
+                        <span class="badge">12</span>
+                    </button>
+                    <button class="channel-btn" onclick="switchView('feed')">
+                        <span>#</span>
+                        <span>gains-gang</span>
+                    </button>
+                    <button class="channel-btn" onclick="switchView('feed')">
+                        <span>#</span>
+                        <span>cardio-crew</span>
+                    </button>
+                </div>
+                
+                <div class="channel-section">
+                    <div class="channel-header">DIRECT MESSAGES</div>
+                    <button class="channel-btn" onclick="switchView('feed')">
+                        <span class="online-dot online"></span>
+                        <span>Sarah (workout buddy)</span>
+                    </button>
+                    <button class="channel-btn" onclick="switchView('feed')">
+                        <span class="online-dot away"></span>
+                        <span>Mike (trainer)</span>
+                    </button>
+                </div>
+                
+                <div class="channel-section">
+                    <div class="channel-header">AI COACH</div>
+                    <button class="channel-btn" onclick="switchView('workout')">
+                        <span>🤖</span>
+                        <span>Generate Workout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Stream View -->
+            <div id="streamView" class="view-container">
+                <div class="content-header">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ef4444, #ec4899); display: flex; align-items: center; justify-content: center; font-weight: bold;">JM</div>
+                            <div>
+                                <div class="header-title">
+                                    💪 Beast Mode Squad
+                                    <span style="background: #ef4444; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; margin-left: 0.5rem;">LIVE</span>
+                                </div>
+                                <div class="header-subtitle">Hosted by Jake Martinez • 247 watching</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary">Join Workout 🏋️</button>
+                        <button class="btn btn-secondary">Follow</button>
+                    </div>
+                </div>
+                
+                <div class="stream-content">
+                    <div class="stream-main">
+                        <div class="stream-video">
+                            <div class="video-placeholder">
+                                <div class="video-content">
+                                    <div style="font-size: 4rem; margin-bottom: 1rem;">🏋️‍♂️</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">LIVE: Upper Body Blast</div>
+                                    <div>Set 3/5 - Bench Press 185lbs x 8 reps</div>
+                                </div>
+                                <div class="live-badge">
+                                    <span class="live-dot"></span>
+                                    LIVE
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid-4">
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: #10b981;">247</div>
+                                <div class="stat-label">Watching Now</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: #3b82f6;">3.2K</div>
+                                <div class="stat-label">Total Reps</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: #f59e0b;">45min</div>
+                                <div class="stat-label">Duration</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: #ef4444;">780</div>
+                                <div class="stat-label">Calories</div>
+                            </div>
+                        </div>
+                        
+                        <div class="workout-plan">
+                            <h3 style="font-weight: bold; margin-bottom: 0.75rem;">Today's Workout Plan</h3>
+                            <div class="workout-item completed">
+                                <span style="color: #10b981;">✓</span>
+                                <span>Bench Press - 5 sets</span>
+                            </div>
+                            <div class="workout-item completed">
+                                <span style="color: #10b981;">✓</span>
+                                <span>Cable Flyes - 4 sets</span>
+                            </div>
+                            <div class="workout-item active">
+                                <span style="color: #8b5cf6;">▶</span>
+                                <span style="font-weight: bold;">Incline Dumbbell Press - 4 sets</span>
+                            </div>
+                            <div class="workout-item pending">
+                                <span style="color: #9ca3af;">○</span>
+                                <span style="color: #9ca3af;">Tricep Dips - 3 sets</span>
+                            </div>
+                            <div class="workout-item pending">
+                                <span style="color: #9ca3af;">○</span>
+                                <span style="color: #9ca3af;">Overhead Press - 4 sets</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stream-chat">
+                        <div class="chat-header">
+                            <h3 style="font-weight: bold;">Stream Chat</h3>
+                            <p style="font-size: 0.75rem; color: #9ca3af;">Be respectful and supportive!</p>
+                        </div>
+                        <div class="chat-messages" id="streamChatMessages"></div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" placeholder="Send encouragement..." onkeypress="if(event.key==='Enter') sendMessage(this)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feed View -->
+            <div id="feedView" class="view-container active">
+                <div class="content-header">
+                    <div>
+                        <div class="header-title"># morning-grind</div>
+                        <div class="header-subtitle">🔥 152 members crushing their goals</div>
+                    </div>
+                    <button class="btn btn-primary">Share Workout</button>
+                </div>
+                
+                <div class="feed-content">
+                    <div class="feed-main">
+                        <!-- Post 1 -->
+                        <div class="post">
+                            <div class="post-header">
+                                <div class="post-avatar" style="background: linear-gradient(135deg, #10b981, #14b8a6);"></div>
+                                <div class="post-author">
+                                    <div>
+                                        <span class="author-name">Sarah Kim</span>
+                                        <span class="pro-badge">PRO</span>
+                                        <span class="author-meta"> • 23 min ago</span>
+                                    </div>
+                                    <div class="author-meta">Level 31 • 89 day streak</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                Just crushed a new PR! 225lbs deadlift x 5 💪🔥 Who's joining me for afternoon cardio?
+                            </div>
+                            <div class="workout-card">
+                                <div class="workout-card-header">
+                                    <span style="font-weight: bold;">🏋️ Strength Training</span>
+                                    <span class="xp-badge">+420 XP</span>
+                                </div>
+                                <div class="workout-stats">
+                                    <div>
+                                        <div style="color: #9ca3af; font-size: 0.75rem;">Duration</div>
+                                        <div style="font-weight: bold;">67 min</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #9ca3af; font-size: 0.75rem;">Calories</div>
+                                        <div style="font-weight: bold;">542</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #9ca3af; font-size: 0.75rem;">Volume</div>
+                                        <div style="font-weight: bold;">15.2K lbs</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="reactions">
+                                <button class="reaction-btn" onclick="addReaction(this)">
+                                    <span>💪</span>
+                                    <span>47</span>
+                                </button>
+                                <button class="reaction-btn" onclick="addReaction(this)">
+                                    <span>🔥</span>
+                                    <span>32</span>
+                                </button>
+                                <button class="reaction-btn" onclick="addReaction(this)">
+                                    <span>👑</span>
+                                    <span>18</span>
+                                </button>
+                                <button class="reaction-btn">💬 12 comments</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Post 2 -->
+                        <div class="post">
+                            <div class="post-header">
+                                <div class="post-avatar" style="background: linear-gradient(135deg, #f97316, #ef4444);"></div>
+                                <div class="post-author">
+                                    <div>
+                                        <span class="author-name">Marcus Johnson</span>
+                                        <span class="author-meta"> • 1 hour ago</span>
+                                    </div>
+                                    <div class="author-meta">Level 28 • 52 day streak</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                🎉 Achievement Unlocked: 100 WORKOUTS! Started my journey 6 months ago and never looked back. This community keeps me going every day!
+                            </div>
+                            <div class="achievement-card">
+                                <div class="achievement-icon">🏆</div>
+                                <div class="achievement-title">Century Club</div>
+                                <div style="font-size: 0.875rem; opacity: 0.9;">Completed 100 workouts</div>
+                            </div>
+                            <div class="reactions">
+                                <button class="reaction-btn" onclick="addReaction(this)">
+                                    <span>🎉</span>
+                                    <span>156</span>
+                                </button>
+                                <button class="reaction-btn" onclick="addReaction(this)">
+                                    <span>💪</span>
+                                    <span>89</span>
+                                </button>
+                                <button class="reaction-btn" onclick="addReaction(this)">
+                                    <span>👏</span>
+                                    <span>67</span>
+                                </button>
+                                <button class="reaction-btn">💬 34 comments</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Challenge Post -->
+                        <div class="post" style="border: 2px solid #8b5cf6;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <span style="font-size: 1.5rem;">⚡</span>
+                                <span style="font-weight: bold; font-size: 1.125rem;">Weekly Challenge: Leg Day Legends</span>
+                            </div>
+                            <div style="margin-bottom: 0.75rem; color: #d1d5db;">
+                                Can you complete 500 squats this week? Join 284 members competing for the top spot!
+                            </div>
+                            <div style="background: #111827; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                                    <span>Your Progress</span>
+                                    <span style="font-weight: bold; color: #8b5cf6;">187 / 500</span>
+                                </div>
+                                <div style="width: 100%; background: #374151; border-radius: 999px; height: 8px;">
+                                    <div style="background: linear-gradient(to right, #8b5cf6, #ec4899); height: 8px; border-radius: 999px; width: 37.4%;"></div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" style="flex: 1;">Log Squats</button>
+                                <button class="btn btn-secondary">Leaderboard</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-right">
+                        <div class="leaderboard">
+                            <h3 class="section-title">
+                                <span>🏆</span>
+                                <span>Today's Leaderboard</span>
+                            </h3>
+                            <div class="leaderboard-item rank-1">
+                                <span style="font-size: 1.5rem;">🥇</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; font-size: 0.875rem;">Alex Chen</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">1,420 XP</div>
+                                </div>
+                            </div>
+                            <div class="leaderboard-item rank-2">
+                                <span style="font-size: 1.5rem;">🥈</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; font-size: 0.875rem;">Jordan Lee</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">1,250 XP</div>
+                                </div>
+                            </div>
+                            <div class="leaderboard-item rank-3">
+                                <span style="font-size: 1.5rem;">🥉</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; font-size: 0.875rem;">Taylor Swift</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">1,180 XP</div>
+                                </div>
+                            </div>
+                            <div class="leaderboard-item rank-me">
+                                <span style="font-weight: bold; font-size: 0.875rem; width: 24px;">#42</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; font-size: 0.875rem; color: #8b5cf6;">You</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">850 XP</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 class="section-title">⚡ Active Challenges</h3>
+                            <div style="background: rgba(139, 92, 246, 0.3); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.3); margin-bottom: 0.5rem;">
+                                <div style="font-weight: bold; font-size: 0.875rem; margin-bottom: 0.25rem;">Leg Day Legends</div>
+                                <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.5rem;">500 squats • 3 days left</div>
+                                <div style="width: 100%; background: #374151; border-radius: 999px; height: 6px;">
+                                    <div style="background: #8b5cf6; height: 6px; border-radius: 999px; width: 37%;"></div>
+                                </div>
+                            </div>
+                            <div style="background: rgba(59, 130, 246, 0.3); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                                <div style="font-weight: bold; font-size: 0.875rem; margin-bottom: 0.25rem;">Cardio King</div>
+                                <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.5rem;">50km run • 6 days left</div>
+                                <div style="width: 100%; background: #374151; border-radius: 999px; height: 6px;">
+                                    <div style="background: #3b82f6; height: 6px; border-radius: 999px; width: 62%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="section-title">🤖 AI Suggestions</h3>
+                            <button class="btn btn-secondary" style="width: 100%; text-align: left; margin-bottom: 0.5rem;">
+                                <div style="font-weight: bold; font-size: 0.875rem; margin-bottom: 0.25rem;">Upper Body Power</div>
+                                <div style="font-size: 0.75rem; color: #9ca3af;">45 min • Chest & Triceps</div>
+                            </button>
+                            <button class="btn btn-secondary" style="width: 100%; text-align: left;">
+                                <div style="font-weight: bold; font-size: 0.875rem; margin-bottom: 0.25rem;">HIIT Cardio Blast</div>
+                                <div style="font-size: 0.75rem; color: #9ca3af;">30 min • High Intensity</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Workout Generator View -->
+            <div id="workoutView" class="view-container">
+                <div class="content-header">
+                    <div>
+                        <div class="header-title">🤖 AI Workout Generator</div>
+                        <div class="header-subtitle">Powered by your fitness profile and goals</div>
+                    </div>
+                </div>
+                
+                <div class="workout-gen">
+                    <div class="workout-gen-content">
+                        <div class="workout-options">
+                            <button class="workout-option" onclick="generateWorkout('strength')">
+                                <div class="option-icon">💪</div>
+                                <div class="option-title">Strength</div>
+                                <div class="option-subtitle">Build muscle</div>
+                            </button>
+                            <button class="workout-option" style="background: linear-gradient(135deg, #ef4444, #f97316);" onclick="generateWorkout('cardio')">
+                                <div class="option-icon">🏃</div>
+                                <div class="option-title">Cardio</div>
+                                <div class="option-subtitle">Burn calories</div>
+                            </button>
+                            <button class="workout-option" style="background: linear-gradient(135deg, #10b981, #14b8a6);" onclick="generateWorkout('mobility')">
+                                <div class="option-icon">🧘</div>
+                                <div class="option-title">Mobility</div>
+                                <div class="option-subtitle">Flexibility</div>
+                            </button>
+                        </div>
+                        
+                        <div id="generatedWorkout" class="generated-workout">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1.25rem; font-weight: bold;">Your Custom Workout</h3>
+                                <button class="btn" style="background: #10b981; color: white;">Start Workout 🔥</button>
+                            </div>
+                            <div id="exerciseList" class="exercise-list"></div>
+                            <div class="stats-grid" style="margin-top: 1.5rem; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
+                                <div style="background: #374151; padding: 0.75rem; border-radius: 8px;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #8b5cf6;">45</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">Minutes</div>
+                                </div>
+                                <div style="background: #374151; padding: 0.75rem; border-radius: 8px;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #10b981;">+680</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">Est. XP</div>
+                                </div>
+                                <div style="background: #374151; padding: 0.75rem; border-radius: 8px;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #f97316;">520</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">Est. Calories</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 2rem;">
+                            <h3 style="font-weight: bold; margin-bottom: 1rem;">📊 Recent Workouts</h3>
+                            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div>
+                                    <div style="font-weight: bold;">Upper Body Strength</div>
+                                    <div style="font-size: 0.875rem; color: #9ca3af;">Yesterday • 52 min • +580 XP</div>
+                                </div>
+                                <button class="btn btn-primary">Repeat</button>
+                            </div>
+                            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: bold;">HIIT Cardio</div>
+                                    <div style="font-size: 0.875rem; color: #9ca3af;">2 days ago • 30 min • +420 XP</div>
+                                </div>
+                                <button class="btn btn-primary">Repeat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize chat
+        const chatMessages = [
+            { user: 'FitFreak23', msg: 'Beast mode activated! 💪', time: '2m ago' },
+            { user: 'IronMike', msg: "Let's goooo! That form is perfect!", time: '1m ago' },
+            { user: 'GainzQueen', msg: '🔥🔥🔥 Crushing it Jake!', time: '45s ago' },
+            { user: 'CardioKing', msg: 'Who else is joining? Drop a 💪 in chat!', time: '30s ago' },
+            { user: 'SwolePatrol', msg: 'This is insane! My arms are dying 😅', time: '15s ago' },
+        ];
+        
+        function initChat() {
+            const container = document.getElementById('streamChatMessages');
+            const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#f59e0b'];
+            chatMessages.forEach((msg, i) => {
+                const div = document.createElement('div');
+                div.className = 'chat-message';
+                div.innerHTML = `
+                    <div class="chat-avatar" style="background: linear-gradient(135deg, ${colors[i % colors.length]}, ${colors[(i + 1) % colors.length]});"></div>
+                    <div class="chat-content">
+                        <div>
+                            <span class="chat-username">${msg.user}</span>
+                            <span class="chat-time">${msg.time}</span>
+                        </div>
+                        <div class="chat-text">${msg.msg}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function sendMessage(input) {
+            if (input.value.trim()) {
+                const container = document.getElementById('streamChatMessages');
+                const div = document.createElement('div');
+                div.className = 'chat-message';
+                div.style.animation = 'slideUp 0.3s ease-out';
+                div.innerHTML = `
+                    <div class="chat-avatar" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6);"></div>
+                    <div class="chat-content">
+                        <div>
+                            <span class="chat-username">You</span>
+                            <span class="chat-time">now</span>
+                        </div>
+                        <div class="chat-text">${input.value}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+                input.value = '';
+            }
+        }
+        
+        function switchView(view) {
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.getElementById(view + 'View').classList.add('active');
+        }
+        
+        function addReaction(btn) {
+            const countSpan = btn.querySelector('span:last-child');
+            const count = parseInt(countSpan.textContent);
+            countSpan.textContent = count + 1;
+            btn.style.animation = 'none';
+            setTimeout(() => {
+                btn.style.animation = 'pulse 0.5s ease-in-out';
+            }, 10);
+        }
+        
+        function generateWorkout(type) {
+            const workouts = {
+                strength: [
+                    { name: 'Barbell Bench Press', sets: '4 sets x 8-10 reps', rest: '90s rest', emoji: '💪' },
+                    { name: 'Incline Dumbbell Press', sets: '4 sets x 10-12 reps', rest: '75s rest', emoji: '🏋️' },
+                    { name: 'Cable Flyes', sets: '3 sets x 12-15 reps', rest: '60s rest', emoji: '💥' },
+                    { name: 'Tricep Dips', sets: '3 sets x 10-12 reps', rest: '60s rest', emoji: '🔥' },
+                    { name: 'Overhead Press', sets: '4 sets x 8-10 reps', rest: '90s rest', emoji: '⚡' }
+                ],
+                cardio: [
+                    { name: 'Treadmill Sprint Intervals', sets: '8 rounds x 30s sprint', rest: '30s walk', emoji: '🏃' },
+                    { name: 'Rowing Machine', sets: '5 min steady state', rest: '1min rest', emoji: '🚣' },
+                    { name: 'Jump Rope', sets: '3 sets x 2 min', rest: '1min rest', emoji: '🪢' },
+                    { name: 'Battle Ropes', sets: '4 sets x 30s', rest: '30s rest', emoji: '💪' },
+                    { name: 'Bike Sprints', sets: '10 rounds x 20s', rest: '40s rest', emoji: '🚴' }
+                ],
+                mobility: [
+                    { name: 'Cat-Cow Stretch', sets: '3 sets x 10 reps', rest: 'Flow smoothly', emoji: '🧘' },
+                    { name: 'Hip Flexor Stretch', sets: '3 sets x 30s each', rest: 'Hold deep', emoji: '🦵' },
+                    { name: 'Shoulder Circles', sets: '2 sets x 15 reps', rest: 'Both directions', emoji: '💫' },
+                    { name: 'Hamstring Stretch', sets: '3 sets x 30s each', rest: 'Breathe deep', emoji: '🌟' },
+                    { name: 'Spinal Twists', sets: '3 sets x 10 each', rest: 'Gentle rotation', emoji: '🔄' }
+                ]
+            };
+            
+            const exercises = workouts[type];
+            const list = document.getElementById('exerciseList');
+            list.innerHTML = exercises.map((ex, i) => `
+                <div class="exercise-item">
+                    <div class="exercise-icon">${ex.emoji}</div>
+                    <div class="exercise-info">
+                        <div class="exercise-name">${i + 1}. ${ex.name}</div>
+                        <div class="exercise-details">${ex.sets} • ${ex.rest}</div>
+                    </div>
+                    <button class="btn btn-primary">▶️ Demo</button>
+                </div>
+            `).join('');
+            
+            document.getElementById('generatedWorkout').classList.add('visible');
+            document.getElementById('generatedWorkout').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Initialize
+        initChat();
+    </script>
+</body>
+</html>
